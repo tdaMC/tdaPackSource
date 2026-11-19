@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tdaMC - Abyssal Resource Vault</title>
+
+  <!-- Font chữ sắc nét hỗ trợ tiếng Việt & phong cách Dark Void -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-void: #05020a;
+      --bg-abyss: #0c0617;
+      --surface: rgba(16, 8, 30, 0.72);
+      --surface-solid: #110820;
+      --violet-core: #9d4edd;
+      --violet-bright: #c77dff;
+      --violet-dark: #3c096c;
+      --crimson-corrupt: #ff2a85;
+      --glow-purple: rgba(157, 78, 221, 0.45);
+      --glow-crimson: rgba(255, 42, 133, 0.35);
+      --border-void: rgba(199, 125, 255, 0.22);
+      --text-main: #f3ecff;
+      --text-dim: #9b8ab8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Be Vietnam Pro', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-void);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(90, 24, 154, 0.22) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(157, 78, 221, 0.16) 0%, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* CANVAS HẠT HẮC ÁM TƯƠNG TÁC CHUỘT */
+    #voidCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* LỚP PHỦ SƯƠNG MÙ TÍM NHẸ */
+    .void-vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 55%, rgba(3, 1, 8, 0.85) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* KHUNG CHỨA CHÍNH */
+    .wrapper {
+      position: relative;
+      z-index: 2;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 20px 24px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ========================================================
+       THANH HEADER NỔI PHÍA TRÊN (TOP COMMAND BAR)
+    ======================================================== */
+    .top-bar {
+      position: sticky;
+      top: 14px;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 20px;
+      background: rgba(13, 6, 26, 0.82);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-void);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.65), 0 0 25px rgba(157, 78, 221, 0.12);
+    }
+
+    /* PROFILE CHỦ WEB */
+    .profile-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      padding: 6px 14px 6px 6px;
+      border-radius: 50px;
+      background: rgba(157, 78, 221, 0.08);
+      border: 1px solid rgba(199, 125, 255, 0.25);
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      flex-shrink: 0;
+    }
+
+    .profile-pill:hover {
+      background: rgba(157, 78, 221, 0.2);
+      border-color: var(--violet-bright);
+      box-shadow: 0 0 22px var(--glow-purple);
+      transform: translateY(-2px);
+    }
+
+    .avatar-ring {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(135deg, var(--violet-bright), var(--crimson-corrupt));
+      box-shadow: 0 0 14px var(--glow-purple);
+      flex-shrink: 0;
+    }
+
+    .avatar-ring img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      background: #090412;
+      display: block;
+    }
+
+    .profile-meta {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+    }
+
+    .profile-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .corrupt-badge {
+      font-size: 0.65rem;
+      font-family: 'Rajdhani', sans-serif;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--violet-dark), var(--crimson-corrupt));
+      color: #fff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .profile-handle {
+      font-size: 0.76rem;
+      color: var(--violet-bright);
+      font-weight: 500;
+    }
+
+    /* BỘ CHUYỂN ĐỔI ENGINE GIỮA BAR */
+    .engine-switch {
+      display: flex;
+      align-items: center;
+      background: rgba(5, 2, 12, 0.85);
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid rgba(199, 125, 255, 0.2);
+      gap: 4px;
+    }
+
+    .engine-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      padding: 8px 22px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .engine-btn:hover {
+      color: #fff;
+      background: rgba(157, 78, 221, 0.12);
+    }
+
+    .engine-btn.active {
+      background: linear-gradient(135deg, var(--violet-core), #6a00f4);
+      color: #fff;
+      box-shadow: 0 0 18px var(--glow-purple);
+    }
+
+    /* CỤM CÔNG CỤ PHẢI (MAIL + STATUS) */
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mail-trigger {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(157, 78, 221, 0.1);
+      border: 1px solid rgba(199, 125, 255, 0.3);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .mail-trigger:hover {
+      background: rgba(157, 78, 221, 0.24);
+      border-color: var(--violet-bright);
+      box-shadow: 0 0 18px var(--glow-purple);
+    }
+
+    .unread-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--crimson-corrupt);
+      box-shadow: 0 0 10px var(--crimson-corrupt);
+      display: none;
+    }
+
+    .unread-dot.show {
+      display: inline-block;
+      animation: abyssPulse 1.3s infinite;
+    }
+
+    @keyframes abyssPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.45); opacity: 0.5; }
+    }
+
+    /* ========================================================
+       KHU VỰC TÌM KIẾM & TAGS (HERO FILTER PANEL)
+    ======================================================== */
+    .control-banner {
+      background: var(--surface);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-void);
+      border-radius: 18px;
+      padding: 24px 28px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .control-banner::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--violet-bright), var(--crimson-corrupt), transparent);
+    }
+
+    .banner-title-area {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .banner-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, #ffffff 0%, var(--violet-bright) 60%, var(--crimson-corrupt) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .banner-sub {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .counter-pill {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      color: var(--violet-bright);
+      background: rgba(157, 78, 221, 0.14);
+      border: 1px solid rgba(199, 125, 255, 0.25);
+      padding: 2px 10px;
+      border-radius: 6px;
+    }
+
+    .search-cluster {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      max-width: 480px;
+      min-width: 260px;
+    }
+
+    .search-field {
+      display: flex;
+      align-items: center;
+      background: rgba(6, 2, 14, 0.9);
+      border: 1px solid rgba(199, 125, 255, 0.28);
+      border-radius: 12px;
+      padding: 11px 16px;
+      transition: all 0.25s ease;
+    }
+
+    .search-field:focus-within {
+      border-color: var(--violet-bright);
+      box-shadow: 0 0 20px var(--glow-purple);
+    }
+
+    .search-field input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 0.92rem;
+      margin-left: 10px;
+    }
+
+    .search-field input::placeholder {
+      color: #6b5b87;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: none;
+      padding: 2px 6px;
+    }
+
+    .clear-btn:hover {
+      color: var(--crimson-corrupt);
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .void-tag {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      background: rgba(157, 78, 221, 0.08);
+      border: 1px solid rgba(199, 125, 255, 0.2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .void-tag:hover {
+      color: #fff;
+      background: linear-gradient(135deg, var(--violet-core), var(--crimson-corrupt));
+      border-color: transparent;
+      box-shadow: 0 0 12px var(--glow-purple);
+      transform: translateY(-1px);
+    }
+
+    /* ========================================================
+       LƯỚI HIỂN THỊ PACK (ABYSSAL CARDS)
+    ======================================================== */
+    .pack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 24px;
+    }
+
+    .pack-card {
+      position: relative;
+      background: rgba(14, 7, 26, 0.85);
+      border: 1px solid rgba(199, 125, 255, 0.16);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .pack-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: radial-gradient(circle at top right, rgba(199, 125, 255, 0.12), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .pack-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--violet-bright);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 26px var(--glow-purple);
+    }
+
+    .pack-card:hover::after {
+      opacity: 1;
+    }
+
+    .carousel-box {
+      position: relative;
+      width: 100%;
+      height: 195px;
+      border-radius: 11px;
+      overflow: hidden;
+      background: #07030f;
+      border: 1px solid rgba(199, 125, 255, 0.1);
+    }
+
+    .carousel-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      height: 100%;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .slide-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(199, 125, 255, 0.5);
+      background: rgba(9, 4, 18, 0.8);
+      color: var(--violet-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.2s ease;
+      z-index: 4;
+    }
+
+    .pack-card:hover .slide-btn {
+      opacity: 1;
+    }
+
+    .slide-btn:hover {
+      background: var(--violet-core);
+      color: #fff;
+      box-shadow: 0 0 12px var(--glow-purple);
+    }
+
+    .slide-prev { left: 8px; }
+    .slide-next { right: 8px; }
+
+    .card-body {
+      padding: 2px 4px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+    }
+
+    .ver-chip {
+      color: var(--violet-bright);
+      background: rgba(157, 78, 221, 0.14);
+      padding: 2px 8px;
+      border-radius: 5px;
+      border: 1px solid rgba(199, 125, 255, 0.22);
+    }
+
+    .pic-count {
+      color: var(--text-dim);
+    }
+
+    .empty-box {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 75px 20px;
+      background: rgba(14, 7, 26, 0.55);
+      border: 1px dashed rgba(199, 125, 255, 0.25);
+      border-radius: 16px;
+      color: var(--text-dim);
+    }
+
+    .empty-box strong {
+      display: block;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.2rem;
+      color: var(--violet-bright);
+      margin-bottom: 8px;
+    }
+
+    /* GHI CHÚ CHÂN TRANG */
+    .abyss-footer {
+      margin-top: 8px;
+      padding: 14px 20px;
+      background: rgba(16, 8, 30, 0.6);
+      border-left: 3px solid var(--crimson-corrupt);
+      border-radius: 0 12px 12px 0;
+      font-size: 0.86rem;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .abyss-brand {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      color: var(--violet-bright);
+      letter-spacing: 1px;
+    }
+
+    /* ========================================================
+       MODAL CHI TIẾT & HỘP THƯ
+    ======================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 1, 10, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .void-modal {
+      position: relative;
+      width: 100%;
+      max-width: 580px;
+      background: linear-gradient(160deg, #130824 0%, #090312 100%);
+      border: 1px solid var(--violet-bright);
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: 0 0 50px rgba(157, 78, 221, 0.35);
+      transform: translateY(14px) scale(0.96);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .modal-backdrop.active .void-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(199, 125, 255, 0.3);
+      background: rgba(157, 78, 221, 0.1);
+      color: var(--violet-bright);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 5;
+    }
+
+    .modal-close:hover {
+      background: var(--crimson-corrupt);
+      border-color: var(--crimson-corrupt);
+      color: #fff;
+      box-shadow: 0 0 14px var(--glow-crimson);
+    }
+
+    .modal-carousel {
+      height: 280px;
+      margin-bottom: 18px;
+      border-radius: 14px;
+    }
+
+    .modal-carousel .slide-btn {
+      opacity: 1;
+    }
+
+    .modal-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 12px;
+      padding-right: 36px;
+    }
+
+    .modal-desc {
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text-dim);
+      background: rgba(5, 2, 12, 0.75);
+      border: 1px solid rgba(199, 125, 255, 0.12);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .void-btn {
+      flex: 1;
+      padding: 13px 18px;
+      border-radius: 12px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .void-btn-primary {
+      background: linear-gradient(135deg, var(--violet-core), var(--crimson-corrupt));
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 20px rgba(157, 78, 221, 0.35);
+    }
+
+    .void-btn-primary:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 25px var(--glow-crimson);
+      transform: translateY(-2px);
+    }
+
+    .void-btn-outline {
+      background: rgba(157, 78, 221, 0.08);
+      color: var(--violet-bright);
+      border: 1px solid var(--violet-bright);
+    }
+
+    .void-btn-outline:hover {
+      background: rgba(157, 78, 221, 0.22);
+      box-shadow: 0 0 18px var(--glow-purple);
+      transform: translateY(-2px);
+    }
+
+    /* SCROLLBAR TÙY BIẾN */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #06020d;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(157, 78, 221, 0.45);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--violet-bright);
+    }
+
+    /* ========================================================
+       RESPONSIVE MOBILE / TABLET
+    ======================================================== */
+    @media (max-width: 860px) {
+      .top-bar {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding: 12px 14px;
+      }
+      .engine-switch {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+      }
+      .engine-btn {
+        flex: 1;
+      }
+      .control-banner {
+        padding: 18px;
+      }
+      .banner-title {
+        font-size: 1.25rem;
+      }
+      .modal-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas hạt tím đen hắc hóa -->
+  <canvas id="voidCanvas"></canvas>
+  <div class="void-vignette"></div>
+
+  <div class="wrapper">
+
+    <!-- THANH ĐIỀU HƯỚNG TRÊN CÙNG -->
+    <header class="top-bar">
+      <a href="https://www.tiktok.com/@tdamc_resource" target="_blank" class="profile-pill">
+        <div class="avatar-ring">
+          <img src="assets/profile.png" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&q=80'" alt="tdaMC Avatar">
+        </div>
+        <div class="profile-meta">
+          <span class="profile-name">tdaMC <span class="corrupt-badge">VOID</span></span>
+          <span class="profile-handle">@tdamc_resource</span>
+        </div>
+      </a>
+
+      <!-- CHUYỂN ĐỔI JAVA / BEDROCK -->
+      <div class="engine-switch">
+        <button class="engine-btn active" id="tabJava" onclick="switchVersion('java')">JAVA EDITION</button>
+        <button class="engine-btn" id="tabBedrock" onclick="switchVersion('bedrock')">BEDROCK EDITION</button>
+      </div>
+
+      <!-- HỘP THƯ THÔNG BÁO -->
+      <div class="top-actions">
+        <button class="mail-trigger" id="mailBtn">
+          <span>🔮 Thông báo</span>
+          <span class="unread-dot" id="mailRedDot"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- KHU VỰC TIÊU ĐỀ & TÌM KIẾM -->
+    <section class="control-banner">
+      <div class="banner-title-area">
+        <h1 class="banner-title">ABYSSAL PACK VAULT</h1>
+        <div class="banner-sub">
+          <span>Kho lưu trữ Resource Pack bởi tdaMC</span>
+          <span class="counter-pill" id="packCounter">PACKS: 0</span>
+        </div>
+      </div>
+
+      <div class="search-cluster">
+        <div class="search-field">
+          <span>🔮</span>
+          <input type="text" id="searchInput" placeholder="Tìm tên pack hoặc từ khóa " autocomplete="off">
+          <button class="clear-btn" id="searchClearBtn">✕</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LƯỚI DANH SÁCH PACK -->
+    <main class="pack-grid" id="packGrid"></main>
+
+    <!-- CHÂN TRANG GHI CHÚ -->
+    <footer class="abyss-footer">
+      <span id="footerNote"></span>
+      <span class="abyss-brand">VOID PROTOCOL // TDAMC</span>
+    </footer>
+
+  </div>
+
+  <!-- MODAL CHI TIẾT PACK -->
+  <div class="modal-backdrop" id="detailModal">
+    <div class="void-modal">
+      <button class="modal-close" id="btnCloseModal">✕</button>
+
+      <div class="carousel-box modal-carousel">
+        <div class="carousel-track" id="modalCarouselTrack"></div>
+        <button class="slide-btn slide-prev" id="modalPrev">❮</button>
+        <button class="slide-btn slide-next" id="modalNext">❯</button>
+      </div>
+
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-desc" id="modalDesc"></div>
+
+      <div class="modal-actions">
+        <a id="modalLinkBtn" href="#" target="_blank" class="void-btn void-btn-primary">⬇ TẢI PACK NGAY</a>
+        <button id="btnCopyLink" class="void-btn void-btn-outline">📋 SAO CHÉP LINK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL HỘP THƯ THÔNG BÁO -->
+  <div class="modal-backdrop" id="mailModal">
+    <div class="void-modal" style="max-width: 480px;">
+      <button class="modal-close" id="btnCloseMail">✕</button>
+      <h2 class="modal-title" id="mailTitle" style="color: var(--violet-bright);"></h2>
+      <div class="modal-desc" id="mailBody" style="white-space: pre-line; max-height: 260px;"></div>
+      <button class="void-btn void-btn-primary" id="btnConfirmMail" style="width: 100%;">ĐÃ HIỂU</button>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
