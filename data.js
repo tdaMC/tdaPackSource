@@ -24,18 +24,15 @@ const notes = {
 // DANH SÁCH PACK JAVA
 // ========================================================
 const javaPackList = [
-  // Thêm các pack Java của bạn vào đây theo cấu trúc bên dưới:
-  /*
   {
-    title: "Tên Pack Java",
-    key: "anime genshin",
+    title: "Genshin sky #1",
+    key: "anime nahida hutao furina paimon",
     images: [
-      "assets/java/1.png",
+      "assets/sky/1.png",
     ],
-    desc: "Mô tả chi tiết pack tại đây",
-    link: "https://example.com"
+    desc: "Tải pack bằng đười link dưới này nha !!!",
+    link: "https://link4m.org/9iibgvYO"
   },
-  */
 ];
 
 // ========================================================
