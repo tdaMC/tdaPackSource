@@ -126,11 +126,9 @@ class CursedAsh {
     this.prevX = this.x;
     this.prevY = this.y;
 
-    // Chuyển động uốn lượn tự nhiên như tro tàn trong luồng khí tối
     const swirl = Math.sin(time * 0.0015 + this.seed) * this.turbulence;
     this.vx += (swirl - this.vx) * 0.03;
 
-    // Bị luồng hắc khí từ chuột thổi dạt & cuốn xoáy
     if (pointer.active && pointer.x !== null) {
       const dx = this.x - pointer.x;
       const dy = this.y - pointer.y;
@@ -147,7 +145,6 @@ class CursedAsh {
     this.x += this.vx;
     this.y += this.vy;
 
-    // Dần trở về tốc độ bay lên ổn định
     this.vy += (-0.75 - this.vy) * 0.015;
 
     if (this.y < -25 || this.x < -40 || this.x > width + 40) {
@@ -156,7 +153,6 @@ class CursedAsh {
   }
 
   draw() {
-    // Đuôi tàn lửa mờ ảo
     ctx.beginPath();
     ctx.moveTo(this.prevX, this.prevY);
     ctx.lineTo(this.x, this.y);
@@ -165,7 +161,6 @@ class CursedAsh {
     ctx.lineCap = 'round';
     ctx.stroke();
 
-    // Lõi tro tàn
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
@@ -211,7 +206,6 @@ function drawAbyssalSigil() {
   ctx.translate(sigil.x, sigil.y);
   ctx.rotate(sigil.angle);
 
-  // Vầng tối trung tâm
   const aura = ctx.createRadialGradient(0, 0, 2, 0, 0, 68);
   aura.addColorStop(0, `rgba(255, 42, 133, ${0.12 * sigil.alpha})`);
   aura.addColorStop(0.5, `rgba(123, 44, 191, ${0.1 * sigil.alpha})`);
@@ -221,7 +215,6 @@ function drawAbyssalSigil() {
   ctx.arc(0, 0, 68, 0, Math.PI * 2);
   ctx.fill();
 
-  // Vòng ấn chú đứt đoạn xoay chậm
   ctx.strokeStyle = `rgba(199, 125, 255, ${0.26 * sigil.alpha})`;
   ctx.lineWidth = 1;
   ctx.setLineDash([8, 10, 3, 10]);
@@ -229,7 +222,6 @@ function drawAbyssalSigil() {
   ctx.arc(0, 0, 28, 0, Math.PI * 2);
   ctx.stroke();
 
-  // Vòng trong xoay ngược chiều
   ctx.rotate(-sigil.angle * 2.2);
   ctx.strokeStyle = `rgba(255, 42, 133, ${0.22 * sigil.alpha})`;
   ctx.setLineDash([4, 14]);
@@ -243,7 +235,6 @@ function drawAbyssalSigil() {
 function animateVoid(time = 0) {
   ctx.clearRect(0, 0, width, height);
 
-  // 1. Vẽ sương mù bóng tối
   for (const m of mistClouds) {
     m.x += m.vx;
     m.y += m.vy;
@@ -261,7 +252,6 @@ function animateVoid(time = 0) {
     ctx.fill();
   }
 
-  // 2. Vết nứt hư không thi thoảng lóe lên
   if (Math.random() < 0.012 && voidCracks.length < 3) {
     spawnVoidCrack();
   }
@@ -283,7 +273,6 @@ function animateVoid(time = 0) {
     if (c.alpha <= 0) voidCracks.splice(i, 1);
   }
 
-  // 3. Khói hắc ám từ chuột
   for (let i = smokes.length - 1; i >= 0; i--) {
     const s = smokes[i];
     s.x += s.vx;
@@ -306,7 +295,6 @@ function animateVoid(time = 0) {
     ctx.fill();
   }
 
-  // 4. Sóng xung kích khi click
   for (let i = shockwaves.length - 1; i >= 0; i--) {
     const w = shockwaves[i];
     w.radius += (w.maxRadius - w.radius) * 0.1;
@@ -330,13 +318,11 @@ function animateVoid(time = 0) {
     ctx.stroke();
   }
 
-  // 5. Cập nhật & vẽ tro tàn hắc hóa
   for (const ash of ashes) {
     ash.update(time);
     ash.draw();
   }
 
-  // 6. Cập nhật & vẽ vòng ấn chú chuột
   if (pointer.active && pointer.x !== null) {
     sigil.x += (pointer.x - sigil.x) * 0.16;
     sigil.y += (pointer.y - sigil.y) * 0.16;
@@ -602,56 +588,10 @@ btnCopyLink.addEventListener('click', () => {
   });
 });
 
-// ========================================================
-// 5. HỘP THƯ THÔNG BÁO
-// ========================================================
-const mailBtn = document.getElementById('mailBtn');
-const mailModal = document.getElementById('mailModal');
-const btnCloseMail = document.getElementById('btnCloseMail');
-const btnConfirmMail = document.getElementById('btnConfirmMail');
-const mailRedDot = document.getElementById('mailRedDot');
-
-function simpleHash(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return hash.toString();
-}
-
-const letterHash = simpleHash(letterData.title + '::' + letterData.content);
-const savedHash = localStorage.getItem('tdamc_letter_hash');
-
-if (savedHash !== letterHash) {
-  mailRedDot.classList.add('show');
-}
-
-function openMail() {
-  document.getElementById('mailTitle').textContent = letterData.title;
-  document.getElementById('mailBody').textContent = letterData.content;
-  mailModal.classList.add('active');
-
-  localStorage.setItem('tdamc_letter_hash', letterHash);
-  mailRedDot.classList.remove('show');
-}
-
-function closeMail() {
-  mailModal.classList.remove('active');
-}
-
-mailBtn.addEventListener('click', openMail);
-btnCloseMail.addEventListener('click', closeMail);
-btnConfirmMail.addEventListener('click', closeMail);
-mailModal.addEventListener('click', (e) => {
-  if (e.target === mailModal) closeMail();
-});
-
 // Hỗ trợ phím ESC để đóng modal nhanh
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeModal();
-    closeMail();
   }
 });
 

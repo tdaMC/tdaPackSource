@@ -20,8 +20,10 @@
       --violet-bright: #c77dff;
       --violet-dark: #3c096c;
       --crimson-corrupt: #ff2a85;
+      --discord-blurple: #5865F2;
       --glow-purple: rgba(157, 78, 221, 0.45);
       --glow-crimson: rgba(255, 42, 133, 0.35);
+      --glow-discord: rgba(88, 101, 242, 0.45);
       --border-void: rgba(199, 125, 255, 0.22);
       --text-main: #f3ecff;
       --text-dim: #9b8ab8;
@@ -171,6 +173,69 @@
       font-weight: 500;
     }
 
+    /* NÚT DISCORD (QUAY RA BÊN PHẢI GIỐNG PILL TIKTOK) */
+    .discord-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      padding: 6px 6px 6px 16px;
+      border-radius: 50px;
+      background: rgba(88, 101, 242, 0.1);
+      border: 1px solid rgba(199, 125, 255, 0.25);
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      flex-shrink: 0;
+    }
+
+    .discord-pill:hover {
+      background: rgba(88, 101, 242, 0.24);
+      border-color: #8ea1ff;
+      box-shadow: 0 0 22px var(--glow-discord);
+      transform: translateY(-2px);
+    }
+
+    .discord-text {
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .discord-highlight {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.4px;
+      text-shadow: 0 0 12px rgba(88, 101, 242, 0.85);
+    }
+
+    .discord-ring {
+      background: linear-gradient(135deg, var(--discord-blurple), var(--violet-bright));
+      box-shadow: 0 0 14px var(--glow-discord);
+    }
+
+    .discord-avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #5865F2, #3b44b8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .discord-avatar-inner svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+      filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.35));
+    }
+
     /* BỘ CHUYỂN ĐỔI ENGINE GIỮA BAR */
     .engine-switch {
       display: flex;
@@ -207,52 +272,11 @@
       box-shadow: 0 0 18px var(--glow-purple);
     }
 
-    /* CỤM CÔNG CỤ PHẢI (MAIL + STATUS) */
+    /* CỤM CÔNG CỤ PHẢI */
     .top-actions {
       display: flex;
       align-items: center;
       gap: 12px;
-    }
-
-    .mail-trigger {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: rgba(157, 78, 221, 0.1);
-      border: 1px solid rgba(199, 125, 255, 0.3);
-      border-radius: 10px;
-      color: var(--text-main);
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .mail-trigger:hover {
-      background: rgba(157, 78, 221, 0.24);
-      border-color: var(--violet-bright);
-      box-shadow: 0 0 18px var(--glow-purple);
-    }
-
-    .unread-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--crimson-corrupt);
-      box-shadow: 0 0 10px var(--crimson-corrupt);
-      display: none;
-    }
-
-    .unread-dot.show {
-      display: inline-block;
-      animation: abyssPulse 1.3s infinite;
-    }
-
-    @keyframes abyssPulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.45); opacity: 0.5; }
     }
 
     /* ========================================================
@@ -583,7 +607,7 @@
     }
 
     /* ========================================================
-       MODAL CHI TIẾT & HỘP THƯ
+       MODAL CHI TIẾT
     ======================================================== */
     .modal-backdrop {
       position: fixed;
@@ -767,6 +791,23 @@
         flex-direction: column;
       }
     }
+
+    @media (max-width: 480px) {
+      .profile-pill,
+      .discord-pill {
+        gap: 8px;
+      }
+      .avatar-ring {
+        width: 38px;
+        height: 38px;
+      }
+      .discord-text {
+        font-size: 0.76rem;
+      }
+      .discord-highlight {
+        font-size: 0.82rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -795,12 +836,18 @@
         <button class="engine-btn" id="tabBedrock" onclick="switchVersion('bedrock')">BEDROCK EDITION</button>
       </div>
 
-      <!-- HỘP THƯ THÔNG BÁO -->
+      <!-- NÚT THAM GIA DISCORD -->
       <div class="top-actions">
-        <button class="mail-trigger" id="mailBtn">
-          <span>🔮 Thông báo</span>
-          <span class="unread-dot" id="mailRedDot"></span>
-        </button>
+        <a href="https://discord.gg/74QMZmvd3q" target="_blank" rel="noopener noreferrer" class="discord-pill">
+          <span class="discord-text">Tham gia <span class="discord-highlight">Discord</span></span>
+          <div class="avatar-ring discord-ring">
+            <div class="discord-avatar-inner">
+              <svg viewBox="0 0 127.14 96.36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+              </svg>
+            </div>
+          </div>
+        </a>
       </div>
     </header>
 
@@ -852,16 +899,6 @@
         <a id="modalLinkBtn" href="#" target="_blank" class="void-btn void-btn-primary">⬇ TẢI PACK NGAY</a>
         <button id="btnCopyLink" class="void-btn void-btn-outline">📋 SAO CHÉP LINK</button>
       </div>
-    </div>
-  </div>
-
-  <!-- MODAL HỘP THƯ THÔNG BÁO -->
-  <div class="modal-backdrop" id="mailModal">
-    <div class="void-modal" style="max-width: 480px;">
-      <button class="modal-close" id="btnCloseMail">✕</button>
-      <h2 class="modal-title" id="mailTitle" style="color: var(--violet-bright);"></h2>
-      <div class="modal-desc" id="mailBody" style="white-space: pre-line; max-height: 260px;"></div>
-      <button class="void-btn void-btn-primary" id="btnConfirmMail" style="width: 100%;">ĐÃ HIỂU</button>
     </div>
   </div>
 
