@@ -24,6 +24,15 @@ const notes = {
 // DANH SÁCH PACK JAVA
 // ========================================================
 const javaPackList = [
+{
+    title: "Nahida210 sky Bedrock",
+    key: "hentai 210 nahida genshin",
+    images: [
+      "assets/sky/2.png",
+    ],
+    desc: "Download pack tại link dưới đây",
+    link: "https://link4m.net/n8C9TjW"
+  },
   {
     title: "Genshin sky #1",
     key: "anime nahida hutao furina paimon",
