@@ -48,13 +48,31 @@ const javaPackList = [
 // DANH SÁCH PACK BEDROCK
 // ========================================================
 const bedrockPackList = [
-  /*{
-    title: "Nahida210 Gui Bedrock",
-    key: "hentai 210 nahida genshin",
+  {
+    title: "11 Gui cosplay ver3",
+    key: "cosplay",
+    images: [
+      "assets/gui/c.png",
+    ],
+    desc: "Download pack tại link dưới đây",
+    link: "https://link4m.org/QAbZfL"
+  },
+  {
+    title: "10 Gui cosplay ver2",
+    key: "cosplay",
+    images: [
+      "assets/gui/b.png",
+    ],
+    desc: "Download pack tại link dưới đây",
+    link: "https://link4m.net/Vc46b5"
+  },
+  {
+    title: "15 Gui cosplay ver1",
+    key: "cosplay",
     images: [
       "assets/gui/a.png",
     ],
     desc: "Download pack tại link dưới đây",
-    link: "https://link4m.org/go/rwLEe"
-  },*/
+    link: "https://link4m.net/5iEvA"
+  },
 ];
