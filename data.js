@@ -52,7 +52,7 @@ const bedrockPackList = [
     title: "11 Gui cosplay ver3",
     key: "cosplay",
     images: [
-      "assets/gui/c.png",
+      "assets/sky/c.png",
     ],
     desc: "Download pack tại link dưới đây",
     link: "https://link4m.org/QAbZfL"
@@ -61,7 +61,7 @@ const bedrockPackList = [
     title: "10 Gui cosplay ver2",
     key: "cosplay",
     images: [
-      "assets/gui/b.png",
+      "assets/sky/b.png",
     ],
     desc: "Download pack tại link dưới đây",
     link: "https://link4m.net/Vc46b5"
@@ -70,7 +70,7 @@ const bedrockPackList = [
     title: "15 Gui cosplay ver1",
     key: "cosplay",
     images: [
-      "assets/gui/a.png",
+      "assets/sky/a.png",
     ],
     desc: "Download pack tại link dưới đây",
     link: "https://link4m.net/5iEvA"
